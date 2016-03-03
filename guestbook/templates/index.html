@@ -6,5 +6,26 @@
 </head>
 <body>
     <h1>Index Page</h1>
+    {% if user %}
+        <p>hello!! {{user}}</p>
+        <ul>
+            <li><a href="logout">logout</a></li>
+        </ul>
+        <form action="newboard" method="POST">
+            <input type="text" name="pageUrl" placeholder="yout page url">
+            <input type="submit">
+        </form>
+        <ul>
+            {% for url in urls %}
+                <li>{{url}}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>unlogin</p>
+        <ul>
+            <li><a href="login">login</a></li>
+            <li><a href="register">register</a></li>
+        </ul>
+    {% endif %}
 </body>
-</html>
+</html> 
