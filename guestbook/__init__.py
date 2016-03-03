@@ -10,4 +10,4 @@ db = SQLAlchemy(app)
 loginManager = LoginManager()
 loginManager.init_app(app)
 
-from guestbook import view
+from guestbook import route
