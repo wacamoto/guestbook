@@ -12,19 +12,17 @@ def loginCheckDecorator(fun):
     @wraps(fun)
     def check():
         if 'isactive' in session and session['isactive']:
-            return redirect(url_for('index'))
+            usermail = session['usermail']
+            userId = session['userId']
+            user = User.query.get(userId)
+            urls = [_.pageurl for _ in Commentboard.query.filter_by(user=user)]
+            return render_template('index.html', user=usermail, urls=urls)
         return fun()
     return check
 
 @app.route('/', methods=['GET'])
+@loginCheckDecorator
 def index():
-    if 'isactive' in session and session['isactive']:
-        usermail = session['usermail']
-        userId = session['userId']
-        user = User.query.get(userId)
-        urls = [_.pageurl for _ in Commentboard.query.filter_by(user=user)]
-
-        return render_template('index.html', user=usermail, urls=urls)
     return render_template('index.html')
 
 @app.route('/register', methods=['GET', 'POST'])
