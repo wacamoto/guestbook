@@ -2,16 +2,19 @@ from guestbook import app
 from .view import *
 
 
-app.add_url_rule('/',           'index',        showIndexPage,  methods=['GET'])
-app.add_url_rule('/register',   'register',     registerUser,   methods=['POST'])
-app.add_url_rule('/login',      'login',        loginUser,      methods=['POST'])
-app.add_url_rule('/logout',     'logout',       logoutUser,     methods=['GET'])
-app.add_url_rule('/myboard',    'myboard',      getMyBoard,     methods=['GET'])
-app.add_url_rule('/newboard',   'newboard',     addNewBoard,    methods=['POST'])
-app.add_url_rule('/delboard',   'delboard',     delMyBoard,     methods=['GET'])
-app.add_url_rule('/showboard',  'showboard',    showBoard,      methods=['GET'])
+route = app.add_url_rule
 
-app.add_url_rule('/comments/<int:board_id>', 'comments', leaveComment, methods=['GET', 'POST'])
+route('/', 'index', showIndexPage, methods=['GET'])
+route('/register', 'register', userRegister, methods=['POST'])
+route('/login', 'login', userLogin, methods=['POST'])
+route('/logout', 'logout', userLogout, methods=['GET'])
+route('/getboard', 'getboard', getMyBoard, methods=['GET'])
+route('/newboard', 'newboard', addNewBoard, methods=['GET'])
+route('/delboard', 'delboard', delMyBoard, methods=['GET'])
+route('/showboard', 'showboard', showBoard, methods=['GET'])
+route('/verifyuser', 'verifyuser', verifyUser, methods=['GET'])
+route('/addcomment', 'addcomment', addcomment, methods=['GET'])
+route('/getcomment', 'getcomment', getcomment, methods=['GET'])
 
 
 @app.route('/static/<path:path>')

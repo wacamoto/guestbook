@@ -1,29 +1,22 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Document</title>
-    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/1.11.8/semantic.min.css"/>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/1.11.8/semantic.min.js"></script> -->
-    <link rel="stylesheet" href="/static/semantic.min.css">
-    <link rel="stylesheet" href="/static/index.css">
-    <script src="/static/jquery.min.js"></script>
-    <script src="/static/semantic.min.js"></script>
-    <script src="/static/index.js"></script>
-</head>
-<body>
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/index.css">
+<script src="/static/index.js"></script>
+{% endblock %}
+
+{% block body %}
     {% if user %}
         <div>
             <p>hello!! {{user}}</p>
             <ul>
                 <li><a href="logout">logout</a></li>
             </ul>
+            
             <form action="comments/1" method="POST">
                 <input type="text" name="mesg" placeholder="message to board 1">
                 <input type="submit">
             </form>
-            
 
             <form class="ui form" action="newboard" method="POST">
                 <div class="field">
@@ -31,6 +24,7 @@
                     <input type="text" name="pageUrl" placeholder="your page url">
                 </div>
             </form>
+
             <div class="ui divided items">
                 {% for url in urls %}
                     <div class="item">
@@ -80,5 +74,4 @@
             </div>
         </div>
     {% endif %}
-</body>
-</html> 
+{% endblock %}

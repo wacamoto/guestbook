@@ -1,5 +1,6 @@
 from guestbook import db
 
+
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     usermail = db.Column(db.String(64), index=True, unique=True)
@@ -44,3 +45,20 @@ class Comments(db.Model):
 
     def __repr__(self):
         return '<comments to %s>' % self.commentboard
+
+
+class Token(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    token = db.Column(db.String(256), index=True)
+    createTime = db.Column(db.DateTime())
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = db.relationship('User', backref='commentboard')
+
+    def __init__(self, token, user, createTime):
+        self.token = token
+        self.user = user
+        self.createTime = createTime
+
+
+    def __repr__(self):
+        return '<token %s>' % self.user
