@@ -1,3 +1,4 @@
+import re
 import time
 import random
 import hashlib
@@ -29,7 +30,6 @@ def showIndexPage():
     if 'userId' in session:
         usermail = session['usermail']
         userId = session['userId']
-        user = User.query.get(userId)
         return render_template('index.html', user=usermail)
     
     return render_template('index.html')
@@ -42,6 +42,12 @@ def userRegister():
     
     if usermail and passwd1 and passwd2:
         if passwd1 == passwd2:
+            if not checkMailValid(usermail):
+                return 'email unvalid'
+
+            if not checkPasswdValid(passwd1):
+                return 'passwd unvalid'
+
             if not User.query.filter_by(usermail=usermail).first():
                 password = md5hash(passwd1)
                 user = User(usermail, password)
@@ -168,6 +174,14 @@ def addcomment():
         return message['field_cantbe_empty']
     
     return getBoardComment(board_id)
+
+def checkMailValid(email):
+    regex = "(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
+    return re.match(regex, email)
+
+def checkPasswdValid(passwd):
+    return any(c.isdigit() for c in passwd) and \
+           any(c.isalpha() for c in passwd) 
 
 def md5hash(password):
     m = hashlib.md5()

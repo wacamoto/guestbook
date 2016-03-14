@@ -1,5 +1,6 @@
 $(document).ready(function(){
-    $('#loginBtn').on('click', function(){
+    
+    $('#loginForm').submit(function(){
         usermailval = $('#usermailVal').val()
         passwordval = $('#passwordVal').val()
         $.post('login', {
@@ -8,9 +9,10 @@ $(document).ready(function(){
         }).done(function(data){
             alert(data)
         })
+        e.preventDefault();
     })
 
-    $('#registBtn').on('click', function(){
+    $('#registForm').on('submit', function(){
         usermailval = $('#registUsermailVal').val()
         passwordval1 = $('#passwordVal1').val()
         passwordval2 = $('#passwordVal2').val()
@@ -21,5 +23,6 @@ $(document).ready(function(){
         }).done(function(data){
             alert(data)
         })
+        e.preventDefault();
     })
 })
