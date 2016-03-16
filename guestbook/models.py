@@ -52,7 +52,7 @@ class Comments(db.Model):
 #     token = db.Column(db.String(256), index=True)
 #     createTime = db.Column(db.DateTime())
 #     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-#     user = db.relationship('User', backref='commentboard')
+#     user = db.relationship('User', backref='Token')
 
 #     def __init__(self, token, user, createTime):
 #         self.token = token

@@ -12,28 +12,16 @@
             <ul>
                 <li><a href="logout">logout</a></li>
             </ul>
-            
-            <form action="comments/1" method="POST">
-                <input type="text" name="mesg" placeholder="message to board 1">
-                <input type="submit">
-            </form>
 
-            <form class="ui form" action="newboard" method="POST">
+            <form class="ui form" id="createBoardForm">
                 <div class="field">
-                    <label for="your page url"></label>
-                    <input type="text" name="pageUrl" placeholder="your page url">
+                    <label for=""></label>
+                    <input type="text" id="newBoardVal" placeholder="your page url">
                 </div>
+                <button class="ui button">add</button>
             </form>
 
-            <div class="ui divided items">
-                {% for url in urls %}
-                    <div class="item">
-                        <div class="middle aligned content">
-                            <a class="header" href="">{{url}}</a>
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
+            <div class="ui divided items" id="commentItem"></div>
         </div>   
     {% else %}
         <div>

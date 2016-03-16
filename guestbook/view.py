@@ -1,5 +1,6 @@
 import re
 import time
+import json
 import random
 import hashlib
 from functools import wraps
@@ -36,52 +37,51 @@ def showIndexPage():
 
 @ifNotLogin
 def userRegister():
-    usermail = request.form['usermail']
-    passwd1 = request.form['password1']
-    passwd2 = request.form['password2']
+    usermail = request.form['usermail'].strip()
+    passwd1 = request.form['password1'].strip()
+    passwd2 = request.form['password2'].strip()
     
-    if usermail and passwd1 and passwd2:
-        if passwd1 == passwd2:
-            if not checkMailValid(usermail):
-                return 'email unvalid'
-
-            if not checkPasswdValid(passwd1):
-                return 'passwd unvalid'
-
-            if not User.query.filter_by(usermail=usermail).first():
-                password = md5hash(passwd1)
-                user = User(usermail, password)
-                db.session.add(user)
-                db.session.commit()
-            else:
-                return message["user_is_exist"]
-        else:
-            return message["passwd_confirm"]
-    else:
+    if not (usermail and passwd1 and passwd2):
         return message["field_cantbe_empty"]
+    
+    if not (passwd1 == passwd2):
+        return message["passwd_confirm"]
 
-    return message["successful"]
+    if not checkMailValid(usermail):
+        return message['email_unvalid']
+
+    if not checkPasswdValid(passwd1):
+        return message['passwd_unvalid']
+
+    if User.query.filter_by(usermail=usermail).first():
+        return message["user_is_exist"]
+    else:
+        password = md5hash(passwd1)
+        user = User(usermail, password)
+        db.session.add(user)
+        db.session.commit()
+        return message["successful"]
 
 @ifNotLogin
 def userLogin():
-    usermail = request.form['usermail']
-    password = request.form['password']
+    usermail = request.form['usermail'].strip()
+    password = request.form['password'].strip()
     
-    if usermail and password:
-        password = md5hash(password)
-        user = User.query.filter_by(usermail=usermail).first()
-        if user and user.password == password:
-            if user.isactive:
-                session['usermail'] = user.usermail
-                session['userId'] = user.id
-            else:
-                return message['user_unactive']
-        else:
-            return message["fail_to_login"]
-    else:
+    if not (usermail and password):
         return message["field_cantbe_empty"]
 
-    return message["successful"]
+    password = md5hash(password)
+    user = User.query.filter_by(usermail=usermail).first()
+    
+    if not (user and user.password == password):
+        return message["fail_to_login"]
+
+    if not user.isactive:
+        return message['user_unactive']
+    else:
+        session['usermail'] = user.usermail
+        session['userId'] = user.id
+        return message["successful"]
 
 @ifLogin
 def userLogout():
@@ -100,38 +100,37 @@ def getMyBoard():
 
 @ifLogin
 def addNewBoard():
-    page_id = request.args['page_id']
+    page_url = request.form['page_url']
     userId = session['userId']
     user = User.query.get(userId)
 
-    if not Commentboard.query.get(page_id):
-        board = Commentboard(page_id, user)
+    if Commentboard.query.filter_by(pageurl=page_url).first():
+        return message['page_is_exist']
+    else:
+        board = Commentboard(page_url, user)
         db.session.add(board)
         db.session.commit()
-    else:
-        return message['page_is_exist']
-
-    return message['successful']
+        return message['successful']
 
 @ifLogin
 def delMyBoard():
     page_id = request.args['board_id']
     page = Commentboard.query.get(page_id)
     
-    if page:
+    if not page:
+        return message['page_is_not_exist']
+    else:
         db.session.delete(page)
         db.session.commit()
-    else:
-        return message['page_is_not_exist']
-    
-    return message['successful']
+        return message['successful']
 
 def showBoard():
-    return 'showboard'
+    page_id = request.args['page_id']
+    return render_template('commentboard.html', id=page_id)
 
 def verifyUser():
-    key = request.form['key']
-    token = Token.query.filter_by(token = key)
+    key = request.args['key']
+    token = Token.query.filter_by(token=key)
 
     if token:
         user = token.user
@@ -148,32 +147,32 @@ def getcomment():
     pageid = request.args['board_id']
     board = Commentboard.query.get(pageid)
     
-    if pageid:
-        if board:
-            for com in board.comments:
-                comments.append(com.mesg)
-        else:
-            return message['page_is_not_exist']
-    else:
+    if not pageid:
         return message['field_cantbe_empty']
-    
-    return json.dumps(comments)
+
+    if not board:
+        return message['page_is_not_exist']
+    else:
+        for com in board.comments:
+            comments.append(com.mesg)
+            
+        return json.dumps(comments)
 
 def addcomment():
-    mesg = request.form['mesg']
+    mesg = request.args['mesg']
     pageid = request.args['board_id']
     board = Commentboard.query.get(pageid)
-    if pageid and mesg:
-        if board:
-            comment = Comments(mesg, board)
-            db.session.add(comment)
-            db.session.commit()
-        else:
-            return message['page_is_not_exist']
-    else:
-        return message['field_cantbe_empty']
     
-    return getBoardComment(board_id)
+    if not (pageid and mesg):
+        return message['field_cantbe_empty']
+
+    if not board:
+        return message['page_is_not_exist']
+    else:
+        comment = Comments(mesg, board)
+        db.session.add(comment)
+        db.session.commit()
+        return message['successful']
 
 def checkMailValid(email):
     regex = "(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
