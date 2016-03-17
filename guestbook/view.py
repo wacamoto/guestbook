@@ -63,6 +63,9 @@ def userRegister():
         user = User(usermail, nickname, password)
         db.session.add(user)
         db.session.commit()
+
+        sendtoken(user)
+        
         return message["successful"]
 
 @ifNotLogin
@@ -129,11 +132,12 @@ def delMyBoard():
 
 def verifyUser():
     key = request.args['key']
-    token = Token.query.filter_by(token=key)
+    token = Token.query.filter_by(token=key).first()
 
     if token:
         user = token.user
         user.isactive = True
+        db.session.add(user)
         db.session.delete(token)
         db.session.commit()
     else:
@@ -201,11 +205,11 @@ def gentoken(usermail):
     m.update(token.encode('utf-8'))
     return m.hexdigest()
 
-def sendtoken(userId):
-    user = User.query.get(userId)
+def sendtoken(user):
     token = gentoken(user.usermail)
-    acesstoekn = Token(token, user)
-    Verificationletter(acesstoekn)
+    acesstoken = Token(token, user)
+    Verificationletter(user.usermail, token)
+    print('key>>>>' + token)
 
-    db.session.add(acesstoekn)
+    db.session.add(acesstoken)
     db.session.commit()

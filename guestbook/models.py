@@ -12,7 +12,7 @@ class User(db.Model):
         self.usermail = usermail
         self.nickname = nickname
         self.password = password
-        self.isactive = True
+        self.isactive = False
 
     def __repr__(self):
         return '<User %s>' % self.usermail
@@ -55,9 +55,9 @@ class Token(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     token = db.Column(db.String(256), index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    user = db.relationship('User', backref='Token')
+    user = db.relationship('User', backref='token')
 
-    def __init__(self, token, user, createTime):
+    def __init__(self, token, user):
         self.token = token
         self.user = user
 

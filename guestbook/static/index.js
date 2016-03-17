@@ -52,8 +52,11 @@ $(document).ready(function(){
 
         $('#createBoardForm').submit(function(e){
             var url = $('#newBoardVal').val()
-            $.post('board', {
-                board_url: url
+            $.ajax({
+                url: 'board',
+                type: 'POST',
+                dataType: 'json',
+                data: {board_url: url}
             }).done(function(data){
                 alert(data)
             })
@@ -65,6 +68,7 @@ $(document).ready(function(){
             $.ajax({
                 url: 'board?board_id=' + $(this).attr('id'),
                 type: 'DELETE',
+                dataType: 'json',
                 success: function(data) {
                     alert(data)
                     boardList.update()
@@ -74,30 +78,49 @@ $(document).ready(function(){
         })
         
     } else {
-        $('#loginForm').submit(function(){
+        $('#loginForm').submit(function(e){
             var usermailval = $('#usermailVal').val()
             var passwordval = $('#passwordVal').val()
-            $.post('login', {
-                usermail: usermailval,
-                password: passwordval
+            $.ajax({
+                url: 'login',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    usermail: usermailval,
+                    password: passwordval
+                }
             }).done(function(data){
-                alert(data)
+                if (data['status'] == 'successful') {
+                    alert(data['message'])
+                    location.reload();
+                }else{
+                    alert(data['message'])
+                }
             })
             e.preventDefault();
         })
 
-        $('#registForm').on('submit', function(){
+        $('#registForm').on('submit', function(e){
             var usermailval = $('#registUsermailVal').val()
             var nicknameval = $('#registNicknameVal').val()
             var passwordval1 = $('#passwordVal1').val()
             var passwordval2 = $('#passwordVal2').val()
-            $.post('register', {
-                usermail: usermailval,
-                nickname: nicknameval,
-                password1: passwordval1,
-                password2: passwordval2
+            $.ajax({
+                url: 'register',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    usermail: usermailval,
+                    nickname: nicknameval,
+                    password1: passwordval1,
+                    password2: passwordval2
+                }
             }).done(function(data){
-                alert(data)
+                if (data['status'] == 'successful') {
+                    alert(data['message']) 
+                }else{
+                    alert(data['message'])
+                }
             })
             e.preventDefault();
         })

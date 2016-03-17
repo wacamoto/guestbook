@@ -2,7 +2,8 @@ import json
 
 message = {
     "successful": {
-        "status": "successful"
+        "status": "successful",
+        "message": "successful"
     },
     "user_is_exist": {
         "status": "error",
