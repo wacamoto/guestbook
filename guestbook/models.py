@@ -17,16 +17,13 @@ class User(db.Model):
     def __repr__(self):
         return '<User %s>' % self.usermail
 
-    def get_id(self):
-        return self.id
-
 
 class Commentboard(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     pageurl = db.Column(db.String(64), index=True, unique=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     user = db.relationship('User', backref='commentboard')
-    # comments = db.relationship('Comments', backref='commentboard', 
+    # comment = db.relationship('Comment', backref='commentboard', 
     #                         cascade='all, delete-orphan')
     
     def __init__(self, url, user):
@@ -37,31 +34,32 @@ class Commentboard(db.Model):
         return '<page %s>' % self.pageurl
 
 
-class Comments(db.Model):
+class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    mesg = db.Column(db.String(64), index=True)
+    text = db.Column(db.String(64), index=True)
     board_id = db.Column(db.Integer, db.ForeignKey('commentboard.id'))
-    commentboard = db.relationship('Commentboard', backref='comments')
+    commentboard = db.relationship('Commentboard', backref='comment')
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = db.relationship('User', backref='comment')
 
-    def __init__(self, mesg, board):
-        self.mesg = mesg
+    def __init__(self, text, board, user):
+        self.text = text
         self.commentboard = board
+        self.user = user
 
     def __repr__(self):
-        return '<comments to %s>' % self.commentboard
+        return '<comment to %s>' % self.commentboard
 
 
 class Token(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     token = db.Column(db.String(256), index=True)
-    createTime = db.Column(db.DateTime())
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     user = db.relationship('User', backref='Token')
 
     def __init__(self, token, user, createTime):
         self.token = token
         self.user = user
-        self.createTime = createTime
 
     def __repr__(self):
         return '<token %s>' % self.user

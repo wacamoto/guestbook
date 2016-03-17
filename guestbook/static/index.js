@@ -1,21 +1,12 @@
-if (!String.prototype.format) {
-  String.prototype.format = function() {
-    var args = arguments;
-    return this.replace(/{(\d+)}/g, function(match, number) { 
-      return typeof args[number] != 'undefined'
-        ? args[number]
-        : ''
-      ;
-    });
-  };
-}
-
 itemList = function() {
     this.data;
     this.itemBox = $('#commentItem')
     var html = '<div class="item">\
                     <div class="middle aligned content">\
-                        <a class="header" href="{0}">{1}</a>\
+                        <a class="header" href="showboard?board_id={0}">{1}</a>\
+                        <div class="extra">\
+                            <div class="ui right floated button boardDeleteBtn" id="{0}">Delete</div>\
+                        </div>\
                     </div>\
                 </div>'
 
@@ -24,7 +15,6 @@ itemList = function() {
 
         for (i in this.data) {
             var item = html;
-
             item = item.format(
                 this.data[i].id, 
                 this.data[i].pageurl
@@ -32,7 +22,6 @@ itemList = function() {
             content += item
         }
         this.itemBox.html(content)
-        
     }
     this.updateData = function() {
         this.data = (function() {
@@ -40,7 +29,7 @@ itemList = function() {
             $.ajax({
                 'async': false,
                 'dataType': "json",
-                'url': 'getboard',
+                'url': 'board',
                 'success': function (data) {
                     temp = data;
                 }
@@ -63,15 +52,25 @@ $(document).ready(function(){
 
         $('#createBoardForm').submit(function(e){
             var url = $('#newBoardVal').val()
-            $.post('newboard', {
-                page_url: url
+            $.post('board', {
+                board_url: url
             }).done(function(data){
                 alert(data)
             })
             e.preventDefault();
-
-            // refresh page
             boardList.update()
+        })
+
+        $('#commentItem').on('click', '.boardDeleteBtn', function(e){
+            $.ajax({
+                url: 'board?board_id=' + $(this).attr('id'),
+                type: 'DELETE',
+                success: function(data) {
+                    alert(data)
+                    boardList.update()
+                }
+            })
+            console.log('board?board_id=' + $(this).attr('id'))
         })
         
     } else {
@@ -89,10 +88,12 @@ $(document).ready(function(){
 
         $('#registForm').on('submit', function(){
             var usermailval = $('#registUsermailVal').val()
+            var nicknameval = $('#registNicknameVal').val()
             var passwordval1 = $('#passwordVal1').val()
             var passwordval2 = $('#passwordVal2').val()
             $.post('register', {
                 usermail: usermailval,
+                nickname: nicknameval,
                 password1: passwordval1,
                 password2: passwordval2
             }).done(function(data){

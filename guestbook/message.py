@@ -39,6 +39,10 @@ message = {
     "password_unvalid": {
         "status": "error",
         "message": "password unvaild"
+    },
+    "fail_to_verify": {
+    "status": "error",
+    "message": "fail to verify"
     }
 }
 

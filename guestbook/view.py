@@ -30,9 +30,8 @@ def ifNotLogin(fun):
 def showIndexPage():
     if 'userId' in session:
         usermail = session['usermail']
-        userId = session['userId']
         return render_template('index.html', user=usermail)
-    
+
     return render_template('index.html')
 
 @ifNotLogin
@@ -103,8 +102,8 @@ def getMyBoard():
     return json.dumps(urls)
 
 @ifLogin
-def addNewBoard():
-    page_url = request.form['page_url']
+def addMyBoard():
+    page_url = request.form['board_url']
     userId = session['userId']
     user = User.query.get(userId)
 
@@ -118,8 +117,8 @@ def addNewBoard():
 
 @ifLogin
 def delMyBoard():
-    page_id = request.args['board_id']
-    page = Commentboard.query.get(page_id)
+    board_id = request.args['board_id']
+    page = Commentboard.query.get(board_id)
     
     if not page:
         return message['page_is_not_exist']
@@ -138,13 +137,13 @@ def verifyUser():
         db.session.delete(token)
         db.session.commit()
     else:
-        return 'fail to Verify'
+        return message['fail_to_verify']
 
     return message['successful']
 
 def showBoard():
-    page_id = request.args['page_id']
-    return render_template('comment.html', id=page_id)
+    board_id = request.args['board_id']
+    return render_template('comment.html', id=board_id)
 
 def getcomment():
     comments = []
@@ -157,23 +156,27 @@ def getcomment():
     if not board:
         return message['page_is_not_exist']
     else:
-        for com in board.comments:
-            comments.append(com.mesg)
+        for com in board.comment:
+            comments.append({
+                "text": com.text,
+                "user": com.user.nickname
+            })
 
         return json.dumps(comments)
 
 def addcomment():
-    mesg = request.form['mesg']
-    pageid = request.form['board_id']
+    text = request.form['text']
+    pageid = request.args['board_id']
     board = Commentboard.query.get(pageid)
+    user = User.query.get(session['userId'])
     
-    if not (pageid and mesg):
+    if not (pageid and text):
         return message['field_cantbe_empty']
 
     if not board:
         return message['page_is_not_exist']
     else:
-        comment = Comments(mesg, board)
+        comment = Comment(text, board, user)
         db.session.add(comment)
         db.session.commit()
         return message['successful']
