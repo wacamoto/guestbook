@@ -4,11 +4,13 @@ from guestbook import db
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     usermail = db.Column(db.String(64), index=True, unique=True)
+    nickname = db.Column(db.String(64), index=True, unique=True)
     password = db.Column(db.String(64), index =True)
     isactive = db.Column(db.Boolean)
     
-    def __init__(self, usermail, password):
+    def __init__(self, usermail, nickname, password):
         self.usermail = usermail
+        self.nickname = nickname
         self.password = password
         self.isactive = True
 
@@ -24,6 +26,8 @@ class Commentboard(db.Model):
     pageurl = db.Column(db.String(64), index=True, unique=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     user = db.relationship('User', backref='commentboard')
+    # comments = db.relationship('Comments', backref='commentboard', 
+    #                         cascade='all, delete-orphan')
     
     def __init__(self, url, user):
         self.pageurl = url
@@ -47,18 +51,17 @@ class Comments(db.Model):
         return '<comments to %s>' % self.commentboard
 
 
-# class Token(db.Model):
-#     id = db.Column(db.Integer, primary_key=True)
-#     token = db.Column(db.String(256), index=True)
-#     createTime = db.Column(db.DateTime())
-#     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-#     user = db.relationship('User', backref='Token')
+class Token(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    token = db.Column(db.String(256), index=True)
+    createTime = db.Column(db.DateTime())
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = db.relationship('User', backref='Token')
 
-#     def __init__(self, token, user, createTime):
-#         self.token = token
-#         self.user = user
-#         self.createTime = createTime
+    def __init__(self, token, user, createTime):
+        self.token = token
+        self.user = user
+        self.createTime = createTime
 
-
-#     def __repr__(self):
-#         return '<token %s>' % self.user
+    def __repr__(self):
+        return '<token %s>' % self.user

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/comment.css">
+<script src="/static/comment.js"></script>
+<script>
+    var pageId = {{id}}
+</script>
+{% endblock %}
+
+{% block body %}
+<div>
+    <div class="ui comments">
+        <h3 class="ui dividing header">Comments</h3>
+        
+        <div class="comment" id="commentList">
+            <a class="avatar">
+                <img src="/static/elliot.jpg">
+            </a>
+            <div class="content">
+                <a class="author">何金銀</a>
+                <div class="metadata">
+                    <div class="date">1 天前</div>
+                </div>
+                <div class="text"></div>
+            </div>
+        </div>
+
+        <form class="ui reply form" id="addCommentForm">
+            <div class="field">
+                <textarea id="sendCommentInput"></textarea>
+            </div>
+            <button class="ui blue labeled submit icon button">Add Reply</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

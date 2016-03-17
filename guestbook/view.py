@@ -38,10 +38,11 @@ def showIndexPage():
 @ifNotLogin
 def userRegister():
     usermail = request.form['usermail'].strip()
+    nickname = request.form['nickname'].strip()
     passwd1 = request.form['password1'].strip()
     passwd2 = request.form['password2'].strip()
     
-    if not (usermail and passwd1 and passwd2):
+    if not (usermail and nickname and passwd1 and passwd2):
         return message["field_cantbe_empty"]
     
     if not (passwd1 == passwd2):
@@ -51,13 +52,16 @@ def userRegister():
         return message['email_unvalid']
 
     if not checkPasswdValid(passwd1):
-        return message['passwd_unvalid']
+        return message['password_unvalid']
 
     if User.query.filter_by(usermail=usermail).first():
         return message["user_is_exist"]
+
+    if User.query.filter_by(nickname=nickname).first():
+        return message["user_is_exist"]
     else:
         password = md5hash(passwd1)
-        user = User(usermail, password)
+        user = User(usermail, nickname, password)
         db.session.add(user)
         db.session.commit()
         return message["successful"]
@@ -124,10 +128,6 @@ def delMyBoard():
         db.session.commit()
         return message['successful']
 
-def showBoard():
-    page_id = request.args['page_id']
-    return render_template('commentboard.html', id=page_id)
-
 def verifyUser():
     key = request.args['key']
     token = Token.query.filter_by(token=key)
@@ -142,6 +142,10 @@ def verifyUser():
 
     return message['successful']
 
+def showBoard():
+    page_id = request.args['page_id']
+    return render_template('comment.html', id=page_id)
+
 def getcomment():
     comments = []
     pageid = request.args['board_id']
@@ -155,12 +159,12 @@ def getcomment():
     else:
         for com in board.comments:
             comments.append(com.mesg)
-            
+
         return json.dumps(comments)
 
 def addcomment():
-    mesg = request.args['mesg']
-    pageid = request.args['board_id']
+    mesg = request.form['mesg']
+    pageid = request.form['board_id']
     board = Commentboard.query.get(pageid)
     
     if not (pageid and mesg):
