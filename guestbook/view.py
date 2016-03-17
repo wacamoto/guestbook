@@ -166,7 +166,7 @@ def getcomment():
 
 def addcomment():
     text = request.form['text']
-    pageid = request.args['board_id']
+    pageid = request.form['board_id']
     board = Commentboard.query.get(pageid)
     user = User.query.get(session['userId'])
     
