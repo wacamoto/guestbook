@@ -38,7 +38,7 @@ var comments = function() {
             data: {board_id: this.page_id},
             success: function (data) {
                 console.log(data)
-                temp = data;
+                temp = data.data;
             },
             error: function (jXHR, textStatus, errorThrown) {
                 alert(errorThrown);
@@ -71,6 +71,8 @@ $(document).ready(function() {
             error: function (jXHR, textStatus, errorThrown) {
                 alert(errorThrown);
             }
+        }).done(function() {
+            $('#sendCommentInput').val('')
         })
     })
 

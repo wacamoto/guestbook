@@ -1,13 +1,11 @@
 import re
 import time
-import json
-import random
 import hashlib
 from functools import wraps
-from flask import render_template, redirect, url_for, request, session
+from flask import render_template, redirect, url_for, request, session, jsonify
 from guestbook import app, db
 from .models import *
-from .message import message
+from .message import success, fail
 from .sendmail import Verificationletter
 
 
@@ -42,31 +40,29 @@ def userRegister():
     passwd2 = request.form['password2'].strip()
     
     if not (usermail and nickname and passwd1 and passwd2):
-        return message["field_cantbe_empty"]
+        return jsonify(fail["field_cantbe_empty"])
     
     if not (passwd1 == passwd2):
-        return message["passwd_confirm"]
+        return jsonify(fail["passwd_confirm"])
 
     if not checkMailValid(usermail):
-        return message['email_unvalid']
+        return jsonify(fail['email_invalid'])
 
     if not checkPasswdValid(passwd1):
-        return message['password_unvalid']
+        return jsonify(fail['password_invalid'])
 
     if User.query.filter_by(usermail=usermail).first():
-        return message["user_is_exist"]
+        return jsonify(fail["user_is_exist"])
 
     if User.query.filter_by(nickname=nickname).first():
-        return message["user_is_exist"]
+        return jsonify(fail["user_is_exist"])
     else:
         password = md5hash(passwd1)
         user = User(usermail, nickname, password)
         db.session.add(user)
         db.session.commit()
-
         sendtoken(user)
-        
-        return message["successful"]
+        return jsonify(success(message='we’ll send you an email'))
 
 @ifNotLogin
 def userLogin():
@@ -74,20 +70,20 @@ def userLogin():
     password = request.form['password'].strip()
     
     if not (usermail and password):
-        return message["field_cantbe_empty"]
+        return jsonify(fail["field_cantbe_empty"])
 
     password = md5hash(password)
     user = User.query.filter_by(usermail=usermail).first()
     
     if not (user and user.password == password):
-        return message["fail_to_login"]
+        return jsonify(fail["fail_to_login"])
 
     if not user.isactive:
-        return message['user_unactive']
+        return jsonify(fail['user_unactive'])
     else:
         session['usermail'] = user.usermail
         session['userId'] = user.id
-        return message["successful"]
+        return jsonify(success())
 
 @ifLogin
 def userLogout():
@@ -102,7 +98,7 @@ def getMyBoard():
     for com in user.commentboard:
         urls.append({"id": com.id, "pageurl":com.pageurl})
 
-    return json.dumps(urls)
+    return jsonify(success(data=urls))
 
 @ifLogin
 def addMyBoard():
@@ -111,12 +107,12 @@ def addMyBoard():
     user = User.query.get(userId)
 
     if Commentboard.query.filter_by(pageurl=page_url).first():
-        return message['page_is_exist']
+        return jsonify(fail['page_is_exist'])
     else:
         board = Commentboard(page_url, user)
         db.session.add(board)
         db.session.commit()
-        return message['successful']
+        return jsonify(success())
 
 @ifLogin
 def delMyBoard():
@@ -124,26 +120,28 @@ def delMyBoard():
     page = Commentboard.query.get(board_id)
     
     if not page:
-        return message['page_is_not_exist']
+        return jsonify(fail['page_is_not_exist'])
     else:
         db.session.delete(page)
         db.session.commit()
-        return message['successful']
+        return jsonify(success())
 
 def verifyUser():
     key = request.args['key']
     token = Token.query.filter_by(token=key).first()
 
-    if token:
+    if not token:
+        return jsonify(fail['fail_to_verify'])
+    else:
         user = token.user
         user.isactive = True
         db.session.add(user)
         db.session.delete(token)
         db.session.commit()
-    else:
-        return message['fail_to_verify']
+        session['usermail'] = user.usermail
+        session['userId'] = user.id
 
-    return message['successful']
+        return redirect(url_for('index'))
 
 def showBoard():
     board_id = request.args['board_id']
@@ -155,10 +153,10 @@ def getcomment():
     board = Commentboard.query.get(pageid)
     
     if not pageid:
-        return message['field_cantbe_empty']
+        return jsonify(fail['field_cantbe_empty'])
 
     if not board:
-        return message['page_is_not_exist']
+        return jsonify(fail['page_is_not_exist'])
     else:
         for com in board.comment:
             comments.append({
@@ -166,7 +164,7 @@ def getcomment():
                 "user": com.user.nickname
             })
 
-        return json.dumps(comments)
+        return jsonify(success(comments))
 
 def addcomment():
     text = request.form['text']
@@ -175,15 +173,15 @@ def addcomment():
     user = User.query.get(session['userId'])
     
     if not (pageid and text):
-        return message['field_cantbe_empty']
+        return jsonify(fail['field_cantbe_empty'])
 
     if not board:
-        return message['page_is_not_exist']
+        return jsonify(fail['page_is_not_exist'])
     else:
         comment = Comment(text, board, user)
         db.session.add(comment)
         db.session.commit()
-        return message['successful']
+        return jsonify(success())
 
 def checkMailValid(email):
     regex = "(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
@@ -191,7 +189,7 @@ def checkMailValid(email):
 
 def checkPasswdValid(passwd):
     return any(c.isdigit() for c in passwd) and \
-           any(c.isalpha() for c in passwd) 
+           any(c.isalpha() for c in passwd)
 
 def md5hash(password):
     m = hashlib.md5()
@@ -209,7 +207,7 @@ def sendtoken(user):
     token = gentoken(user.usermail)
     acesstoken = Token(token, user)
     Verificationletter(user.usermail, token)
-    print('key>>>>' + token)
+    print('usermail=>{0}\nkey=>{1}'.format(user.usermail, token))
 
     db.session.add(acesstoken)
     db.session.commit()

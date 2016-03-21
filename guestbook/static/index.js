@@ -3,7 +3,7 @@ itemList = function() {
     this.itemBox = $('#commentItem')
     var html = '<div class="item">\
                     <div class="middle aligned content">\
-                        <a class="header" href="showboard?board_id={0}">{1}</a>\
+                        <a class="header" target="_blank" href="showboard?board_id={0}">{1}</a>\
                         <div class="extra">\
                             <div class="ui right floated button boardDeleteBtn" id="{0}">Delete</div>\
                         </div>\
@@ -25,13 +25,12 @@ itemList = function() {
     }
     this.updateData = function() {
         this.data = (function() {
-            var temp = 'XD';
             $.ajax({
                 'async': false,
                 'dataType': "json",
                 'url': 'board',
                 'success': function (data) {
-                    temp = data;
+                    temp = data.data;
                 }
             });
             return temp; 
@@ -58,8 +57,9 @@ $(document).ready(function(){
                 dataType: 'json',
                 data: {board_url: url}
             }).done(function(data){
-                alert(data)
+                alert(data['message'])
             })
+            $('#newBoardVal').val('')
             e.preventDefault();
             boardList.update()
         })
@@ -70,7 +70,7 @@ $(document).ready(function(){
                 type: 'DELETE',
                 dataType: 'json',
                 success: function(data) {
-                    alert(data)
+                    alert(data['message'])
                     boardList.update()
                 }
             })
@@ -90,13 +90,14 @@ $(document).ready(function(){
                     password: passwordval
                 }
             }).done(function(data){
-                if (data['status'] == 'successful') {
+                if (data['status'] == 'success') {
                     alert(data['message'])
                     location.reload();
                 }else{
                     alert(data['message'])
                 }
             })
+            $('#usermailVal,#passwordVal').val('')
             e.preventDefault();
         })
 
@@ -116,12 +117,16 @@ $(document).ready(function(){
                     password2: passwordval2
                 }
             }).done(function(data){
-                if (data['status'] == 'successful') {
+                if (data['status'] == 'success') {
                     alert(data['message']) 
                 }else{
                     alert(data['message'])
                 }
             })
+            $('#registUsermailVal,\
+               #registNicknameVal,\
+               #passwordVal1,\
+               #passwordVal2').val('')
             e.preventDefault();
         })
     }

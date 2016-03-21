@@ -1,51 +1,65 @@
 import json
 
-message = {
-    "successful": {
-        "status": "successful",
-        "message": "successful"
-    },
-    "user_is_exist": {
+def success(data=None, message="successful"):
+    return {
+        "status": "success",
+        "message": message,
+        "data": data
+    }
+
+def fail(data=None, message="successful"):
+    return {
+        "status": "fail",
+        "message": message
+    }
+
+def error(data=None, message="successful", code=0):
+    return {
         "status": "error",
-        "message": "user is exist"
+        "message": message,
+        "code": code
+    }
+
+
+fail = {
+    "user_is_exist": {
+        "status": "fail",
+        "message": "user already exist"
     },
     "passwd_confirm": {
-        "status": "error",
+        "status": "fail",
         "message": "confirm fail"
     },
     "field_cantbe_empty": {
         "status": "fail",
-        "message": "can't be empty"
+        "message": "field can't be empty"
     },
     "fail_to_login": {
-        "status": "error",
-        "message": "fail_to_login"
+        "status": "fail",
+        "message": "usermail or password is not correct"
     },
     "user_unactive": {
-        "status": "error",
-        "message": "user_unactive"
+        "status": "fail",
+        "message": "user unactive"
     },
     "page_is_exist": {
-        "status": "error",
-        "message": "this page url is regist"
+        "status": "fail",
+        "message": "this page already exist"
     },
     "page_is_not_exist": {
-        "status": "error",
-        "message": "this page url is not regist"
+        "status": "fail",
+        "message": "this page url does not exist"
     },
-    "email_unvalid": {
-        "status": "error",
-        "message": "email unvalid"
+    "email_invalid": {
+        "status": "fail",
+        "message": "invaild email"
     },
-    "password_unvalid": {
-        "status": "error",
-        "message": "password unvaild"
+    "password_invalid": {
+        "status": "fail",
+        "message": "invaild password"
     },
     "fail_to_verify": {
-    "status": "error",
-    "message": "fail to verify"
+        "status": "fail",
+        "message": "fail to verify"
     }
 }
-
-for key in message:
-    message[key] = json.dumps(message[key])
