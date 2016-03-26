@@ -8,7 +8,6 @@ def Verificationletter(usermail, token):
             "from": "<waka@sandbox9715dcdec1e043b3ab37d4ccf5f7b3c4.mailgun.org>",
             "to": [usermail, "<waka@sandbox9715dcdec1e043b3ab37d4ccf5f7b3c4.mailgun.org>"],
             "subject": "Hello waka",
-            "text": "localhost:5000/verifyuser?token={}".format(token),
             "html": """
             <html>
             <head>
