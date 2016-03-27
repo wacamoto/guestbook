@@ -17,11 +17,9 @@ def Verificationletter(usermail, token):
                 <title>Document</title>
             </head>
             <body>
-                <a href="localhost:5000/verifyuser?token={0}">localhost:5000/verifyuser?token={0}</a>
+                <a href="localhost:5000/verifyuser?key={0}">localhost:5000/verifyuser?key={0}</a>
             </body>
             </html>
             """.format(token)
         }
     )
-
-Verificationletter('tavukizartma@gmail.com', 'tokenishere')
