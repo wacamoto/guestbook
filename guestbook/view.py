@@ -61,7 +61,7 @@ def userRegister():
         user = User(usermail, nickname, password)
         db.session.add(user)
         db.session.commit()
-        sendtoken(user)
+        sendToken(user)
         return jsonify(success(message='we’ll send you an email'))
 
 @ifNotLogin
@@ -197,14 +197,14 @@ def md5hash(password):
     m.update(password.encode('utf-8'))
     return m.hexdigest()
 
-def gentoken(usermail):
+def tokenGenerator(usermail):
     m = hashlib.md5()
     token = usermail + str(time.time()) + app.config['SECRET_KEY']
     m.update(token.encode('utf-8'))
     return m.hexdigest()
 
-def sendtoken(user):
-    token = gentoken(user.usermail)
+def sendToken(user):
+    token = tokenGenerator(user.usermail)
     acesstoken = Token(token, user)
     Verificationletter(user.usermail, token)
     print('usermail=>{0}\nkey=>{1}'.format(user.usermail, token))
