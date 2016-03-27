@@ -1,24 +1,43 @@
-import json
+class success(dict):
+    def __init__(self, data=None, message="successful"):
+        super().__init__()
+        self['status'] = "success"
+        self['message'] = message
+        self['data'] = data
 
-def success(data=None, message="successful"):
-    return {
-        "status": "success",
-        "message": message,
-        "data": data
-    }
+    def setMessage(self, message):
+        self['message'] = message
 
-def fail(data=None, message="successful"):
-    return {
-        "status": "fail",
-        "message": message
-    }
+    def setData(self, data):
+        self['data'] = data
 
-def error(data=None, message="successful", code=0):
-    return {
-        "status": "error",
-        "message": message,
-        "code": code
-    }
+
+class fail(dict):
+    def __init__(self, data=None, message="successful"):
+        super().__init__()
+        self['status'] = "fail"
+        self['message'] = message
+        self['data'] = data
+
+    def setMessage(self, message):
+        self['message'] = message
+
+    def setData(self, data):
+        self['data'] = data
+
+
+class error(dict):
+    def __init__(self, message="successful", code=0):
+        super().__init__()
+        self['status'] = "error"
+        self['message'] = message
+        self['code'] = code
+
+    def setMessage(self, message):
+        self['message'] = message
+
+    def setCode(self, code):
+        self['code'] = code
 
 
 fail = {

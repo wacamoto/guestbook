@@ -164,7 +164,7 @@ def getcomment():
                 "user": com.user.nickname
             })
 
-        return jsonify(success(comments))
+        return jsonify(success(data=comments))
 
 def addcomment():
     text = request.form['text']
