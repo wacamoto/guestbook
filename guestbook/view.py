@@ -39,22 +39,22 @@ def userRegister():
     passwd1 = request.form['password1'].strip()
     passwd2 = request.form['password2'].strip()
     
-    if not (usermail and nickname and passwd1 and passwd2):
+    if usermail == '' and nickname == '' and passwd1 == '' and passwd2 == '':
         return jsonify(fail["field_cantbe_empty"])
     
     if not (passwd1 == passwd2):
         return jsonify(fail["passwd_confirm"])
 
-    if not checkMailValid(usermail):
+    if checkMailValid(usermail) == False:
         return jsonify(fail['email_invalid'])
 
-    if not checkPasswdValid(passwd1):
+    if checkPasswdValid(passwd1) == False:
         return jsonify(fail['password_invalid'])
 
-    if User.query.filter_by(usermail=usermail).first():
+    if User.query.filter_by(usermail=usermail).first() is not None:
         return jsonify(fail["user_is_exist"])
 
-    if User.query.filter_by(nickname=nickname).first():
+    if User.query.filter_by(nickname=nickname).first() is not None:
         return jsonify(fail["user_is_exist"])
     else:
         password = md5hash(passwd1)
@@ -69,16 +69,19 @@ def userLogin():
     usermail = request.form['usermail'].strip()
     password = request.form['password'].strip()
     
-    if not (usermail and password):
+    if usermail == '' and password == '':
         return jsonify(fail["field_cantbe_empty"])
 
     password = md5hash(password)
     user = User.query.filter_by(usermail=usermail).first()
     
-    if not (user and user.password == password):
+    if user is None:
         return jsonify(fail["fail_to_login"])
 
-    if not user.isactive:
+    if not (user.password == password):
+        return jsonify(fail["fail_to_login"])
+
+    if user.isactive == False:
         return jsonify(fail['user_unactive'])
     else:
         session['usermail'] = user.usermail
@@ -106,7 +109,7 @@ def addMyBoard():
     userId = session['userId']
     user = User.query.get(userId)
 
-    if Commentboard.query.filter_by(pageurl=page_url).first():
+    if Commentboard.query.filter_by(pageurl=page_url).first() is not None:
         return jsonify(fail['page_is_exist'])
     else:
         board = Commentboard(page_url, user)
@@ -118,8 +121,8 @@ def addMyBoard():
 def delMyBoard():
     board_id = request.args['board_id']
     page = Commentboard.query.get(board_id)
-    
-    if not page:
+
+    if page is None:
         return jsonify(fail['page_is_not_exist'])
     else:
         db.session.delete(page)
@@ -130,7 +133,7 @@ def verifyUser():
     key = request.args['key']
     token = Token.query.filter_by(token=key).first()
 
-    if not token:
+    if token is None:
         return jsonify(fail['fail_to_verify'])
     else:
         user = token.user
@@ -152,10 +155,10 @@ def getcomment():
     pageid = request.args['board_id']
     board = Commentboard.query.get(pageid)
     
-    if not pageid:
+    if pageid == '':
         return jsonify(fail['field_cantbe_empty'])
 
-    if not board:
+    if board is None:
         return jsonify(fail['page_is_not_exist'])
     else:
         for com in board.comment:
@@ -172,10 +175,10 @@ def addcomment():
     board = Commentboard.query.get(pageid)
     user = User.query.get(session['userId'])
     
-    if not (pageid and text):
+    if pageid == '' and text == '':
         return jsonify(fail['field_cantbe_empty'])
 
-    if not board:
+    if board is None:
         return jsonify(fail['page_is_not_exist'])
     else:
         comment = Comment(text, board, user)
