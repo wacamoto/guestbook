@@ -17,6 +17,7 @@ def ifLogin(fun):
         return redirect(url_for('index'))
     return check
 
+
 def ifNotLogin(fun):
     @wraps(fun)
     def check():
@@ -25,6 +26,7 @@ def ifNotLogin(fun):
         return fun()
     return check
 
+
 def showIndexPage():
     if 'userId' in session:
         usermail = session['usermail']
@@ -32,23 +34,24 @@ def showIndexPage():
 
     return render_template('index.html')
 
+
 @ifNotLogin
 def userRegister():
     usermail = request.form['usermail'].strip()
     nickname = request.form['nickname'].strip()
     passwd1 = request.form['password1'].strip()
     passwd2 = request.form['password2'].strip()
-    
+
     if usermail == '' and nickname == '' and passwd1 == '' and passwd2 == '':
         return jsonify(fail["field_cantbe_empty"])
-    
+
     if not (passwd1 == passwd2):
         return jsonify(fail["passwd_confirm"])
 
-    if checkMailValid(usermail) == False:
+    if checkMailValid(usermail):
         return jsonify(fail['email_invalid'])
 
-    if checkPasswdValid(passwd1) == False:
+    if checkPasswdValid(passwd1):
         return jsonify(fail['password_invalid'])
 
     if User.query.filter_by(usermail=usermail).first() is not None:
@@ -64,34 +67,37 @@ def userRegister():
         sendToken(user)
         return jsonify(success(message='we’ll send you an email'))
 
+
 @ifNotLogin
 def userLogin():
     usermail = request.form['usermail'].strip()
     password = request.form['password'].strip()
-    
+
     if usermail == '' and password == '':
         return jsonify(fail["field_cantbe_empty"])
 
     password = md5hash(password)
     user = User.query.filter_by(usermail=usermail).first()
-    
+
     if user is None:
         return jsonify(fail["fail_to_login"])
 
     if not (user.password == password):
         return jsonify(fail["fail_to_login"])
 
-    if user.isactive == False:
+    if user.isactive:
         return jsonify(fail['user_unactive'])
     else:
         session['usermail'] = user.usermail
         session['userId'] = user.id
         return jsonify(success())
 
+
 @ifLogin
 def userLogout():
     session.clear()
     return redirect(url_for('index'))
+
 
 @ifLogin
 def getMyBoard():
@@ -99,9 +105,10 @@ def getMyBoard():
     userId = session['userId']
     user = User.query.get(userId)
     for com in user.commentboard:
-        urls.append({"id": com.id, "pageurl":com.pageurl})
+        urls.append({"id": com.id, "pageurl": com.pageurl})
 
     return jsonify(success(data=urls))
+
 
 @ifLogin
 def addMyBoard():
@@ -117,6 +124,7 @@ def addMyBoard():
         db.session.commit()
         return jsonify(success())
 
+
 @ifLogin
 def delMyBoard():
     board_id = request.args['board_id']
@@ -128,6 +136,7 @@ def delMyBoard():
         db.session.delete(page)
         db.session.commit()
         return jsonify(success())
+
 
 def verifyUser():
     key = request.args['key']
@@ -146,15 +155,17 @@ def verifyUser():
 
         return redirect(url_for('index'))
 
+
 def showBoard():
     board_id = request.args['board_id']
     return render_template('comment.html', id=board_id)
+
 
 def getcomment():
     comments = []
     pageid = request.args['board_id']
     board = Commentboard.query.get(pageid)
-    
+
     if pageid == '':
         return jsonify(fail['field_cantbe_empty'])
 
@@ -169,12 +180,13 @@ def getcomment():
 
         return jsonify(success(data=comments))
 
+
 def addcomment():
     text = request.form['text']
     pageid = request.form['board_id']
     board = Commentboard.query.get(pageid)
     user = User.query.get(session['userId'])
-    
+
     if pageid == '' and text == '':
         return jsonify(fail['field_cantbe_empty'])
 
@@ -186,13 +198,16 @@ def addcomment():
         db.session.commit()
         return jsonify(success())
 
+
 def checkMailValid(email):
     regex = "(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
     return re.match(regex, email)
 
+
 def checkPasswdValid(passwd):
     return any(c.isdigit() for c in passwd) and \
            any(c.isalpha() for c in passwd)
+
 
 def md5hash(password):
     m = hashlib.md5()
@@ -200,11 +215,13 @@ def md5hash(password):
     m.update(password.encode('utf-8'))
     return m.hexdigest()
 
+
 def tokenGenerator(usermail):
     m = hashlib.md5()
     token = usermail + str(time.time()) + app.config['SECRET_KEY']
     m.update(token.encode('utf-8'))
     return m.hexdigest()
+
 
 def sendToken(user):
     token = tokenGenerator(user.usermail)

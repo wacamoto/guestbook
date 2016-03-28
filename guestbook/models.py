@@ -5,9 +5,9 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     usermail = db.Column(db.String(64), index=True, unique=True)
     nickname = db.Column(db.String(64), index=True, unique=True)
-    password = db.Column(db.String(64), index =True)
+    password = db.Column(db.String(64), index=True)
     isactive = db.Column(db.Boolean)
-    
+
     def __init__(self, usermail, nickname, password):
         self.usermail = usermail
         self.nickname = nickname
@@ -23,9 +23,9 @@ class Commentboard(db.Model):
     pageurl = db.Column(db.String(64), index=True, unique=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     user = db.relationship('User', backref='commentboard')
-    # comment = db.relationship('Comment', backref='commentboard', 
+    # comment = db.relationship('Comment', backref='commentboard',
     #                         cascade='all, delete-orphan')
-    
+
     def __init__(self, url, user):
         self.pageurl = url
         self.user = user
