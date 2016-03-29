@@ -1,10 +1,8 @@
-import re
-import time
-import hashlib
 from functools import wraps
 from flask import render_template, redirect, url_for, request, session, jsonify
 from guestbook import app, db
 from .models import *
+from .helper import *
 from .message import success, fail
 from .sendmail import Verificationletter
 
@@ -48,10 +46,10 @@ def userRegister():
     if not (passwd1 == passwd2):
         return jsonify(fail["passwd_confirm"])
 
-    if checkMailValid(usermail) == False:
+    if not checkMailValid(usermail):
         return jsonify(fail['email_invalid'])
 
-    if checkPasswdValid(passwd1) == False:
+    if not checkPasswdValid(passwd1):
         return jsonify(fail['password_invalid'])
 
     if User.query.filter_by(usermail=usermail).first() is not None:
@@ -85,7 +83,7 @@ def userLogin():
     if not (user.password == password):
         return jsonify(fail["fail_to_login"])
 
-    if user.isactive:
+    if not user.isactive:
         return jsonify(fail['user_unactive'])
     else:
         session['usermail'] = user.usermail
@@ -197,37 +195,3 @@ def addcomment():
         db.session.add(comment)
         db.session.commit()
         return jsonify(success())
-
-
-def checkMailValid(email):
-    regex = "(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
-    return re.match(regex, email)
-
-
-def checkPasswdValid(passwd):
-    return any(c.isdigit() for c in passwd) and \
-           any(c.isalpha() for c in passwd)
-
-
-def md5hash(password):
-    m = hashlib.md5()
-    password += app.config['SECRET_KEY']
-    m.update(password.encode('utf-8'))
-    return m.hexdigest()
-
-
-def tokenGenerator(usermail):
-    m = hashlib.md5()
-    token = usermail + str(time.time()) + app.config['SECRET_KEY']
-    m.update(token.encode('utf-8'))
-    return m.hexdigest()
-
-
-def sendToken(user):
-    token = tokenGenerator(user.usermail)
-    acesstoken = Token(token, user)
-    Verificationletter(user.usermail, token)
-    print('usermail=>{0}\nkey=>{1}'.format(user.usermail, token))
-
-    db.session.add(acesstoken)
-    db.session.commit()
