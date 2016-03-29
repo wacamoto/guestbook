@@ -48,10 +48,10 @@ def userRegister():
     if not (passwd1 == passwd2):
         return jsonify(fail["passwd_confirm"])
 
-    if checkMailValid(usermail):
+    if checkMailValid(usermail) == False:
         return jsonify(fail['email_invalid'])
 
-    if checkPasswdValid(passwd1):
+    if checkPasswdValid(passwd1) == False:
         return jsonify(fail['password_invalid'])
 
     if User.query.filter_by(usermail=usermail).first() is not None:

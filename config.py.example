@@ -6,4 +6,4 @@ MAILGUN_KEY = ""
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 SQLALCHEMY_TRACK_MODIFICATIONS = True
-SQLALCHEMY_DATABASE_URI = 
+SQLALCHEMY_DATABASE_URI = ""
