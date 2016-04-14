@@ -8,21 +8,31 @@ from .message import success, fail
 from .sendmail import Verificationletter
 
 
-def ifLogin(fun):
-    @wraps(fun)
+def ifLogin(f):
+    @wraps(f)
     def check():
         if 'userId' in session:
-            return fun()
+            return f()
         return redirect(url_for('index'))
     return check
 
 
-def ifNotLogin(fun):
-    @wraps(fun)
+def ifNotLogin(f):
+    @wraps(f)
     def check():
         if 'userId' in session:
             return redirect(url_for('index'))
-        return fun()
+        return f()
+    return check
+
+
+def checkFormIsEmpty(f):
+    @wraps(f)
+    def check():
+        for key in request.form:
+            if request.form[key] == '':
+                return jsonify(fail["field_cantbe_empty"])
+        return f()
     return check
 
 
@@ -35,14 +45,12 @@ def showIndexPage():
 
 
 @ifNotLogin
+@checkFormIsEmpty
 def userRegister():
     usermail = request.form['usermail'].strip()
     nickname = request.form['nickname'].strip()
     passwd1 = request.form['password1'].strip()
     passwd2 = request.form['password2'].strip()
-
-    if usermail == '' and nickname == '' and passwd1 == '' and passwd2 == '':
-        return jsonify(fail["field_cantbe_empty"])
 
     if not (passwd1 == passwd2):
         return jsonify(fail["passwd_confirm"])
@@ -67,12 +75,10 @@ def userRegister():
 
 
 @ifNotLogin
+@checkFormIsEmpty
 def userLogin():
     usermail = request.form['usermail'].strip()
     password = request.form['password'].strip()
-
-    if usermail == '' and password == '':
-        return jsonify(fail["field_cantbe_empty"])
 
     password = md5hash(password)
     user = User.query.filter_by(usermail=usermail).first()
@@ -109,6 +115,7 @@ def getMyBoard():
 
 
 @ifLogin
+@checkFormIsEmpty
 def addMyBoard():
     page_url = request.form['board_url']
     userId = session['userId']
@@ -175,14 +182,12 @@ def getcomment():
 
         return jsonify(success(data=comments))
 
+@checkFormIsEmpty
 def addcomment():
     text = request.form['text']
     pageid = request.form['board_id']
     board = Commentboard.query.get(pageid)
     user = User.query.get(session['userId'])
-
-    if pageid == '' and text == '':
-        return jsonify(fail['field_cantbe_empty'])
 
     if board is None:
         return jsonify(fail['page_is_not_exist'])
