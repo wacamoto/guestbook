@@ -1,9 +1,18 @@
 import os
 
-DEBUG = False
-SECRET_KEY = ""
-MAILGUN_KEY = ""
+DEBUG = True
+SECRET_KEY = ''
+
+MAILGUN_SERVER = ''
+MAILGUN_API = ''
+MAILGUN_KEY = ''
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 SQLALCHEMY_TRACK_MODIFICATIONS = True
+SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(basedir, 'guestbook.db')
+SQLALCHEMY_COMMIT_ON_TEARDOWN = True
+
+SITENAME = ''
+HOST = 'localhost'
+PORT= 5000
 SQLALCHEMY_DATABASE_URI = ""

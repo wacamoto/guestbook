@@ -36,7 +36,7 @@ def tokenGenerator(usermail):
 def sendToken(user):
     token = tokenGenerator(user.usermail)
     acesstoken = Token(token, user)
-    Verificationletter(user.usermail, token)
+    # Verificationletter(user.usermail, token)
     print('usermail=>{0}\nkey=>{1}'.format(user.usermail, token))
 
     db.session.add(acesstoken)
