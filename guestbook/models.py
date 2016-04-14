@@ -23,9 +23,7 @@ class Commentboard(db.Model):
     pageurl = db.Column(db.String(64), index=True, unique=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     user = db.relationship('User', backref='commentboard')
-    # comment = db.relationship('Comment', backref='commentboard',
-    #                         cascade='all, delete-orphan')
-
+    
     def __init__(self, url, user):
         self.pageurl = url
         self.user = user

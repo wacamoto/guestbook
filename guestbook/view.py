@@ -1,6 +1,7 @@
 from functools import wraps
 from flask import render_template, redirect, url_for, request, session, jsonify
 from guestbook import app, db
+
 from .models import *
 from .helper import *
 from .message import success, fail
@@ -61,7 +62,6 @@ def userRegister():
         password = md5hash(passwd1)
         user = User(usermail, nickname, password)
         db.session.add(user)
-        db.session.commit()
         sendToken(user)
         return jsonify(success(message='we’ll send you an email'))
 
@@ -119,7 +119,6 @@ def addMyBoard():
     else:
         board = Commentboard(page_url, user)
         db.session.add(board)
-        db.session.commit()
         return jsonify(success())
 
 
@@ -132,7 +131,6 @@ def delMyBoard():
         return jsonify(fail['page_is_not_exist'])
     else:
         db.session.delete(page)
-        db.session.commit()
         return jsonify(success())
 
 
@@ -147,7 +145,6 @@ def verifyUser():
         user.isactive = True
         db.session.add(user)
         db.session.delete(token)
-        db.session.commit()
         session['usermail'] = user.usermail
         session['userId'] = user.id
 
@@ -178,7 +175,6 @@ def getcomment():
 
         return jsonify(success(data=comments))
 
-
 def addcomment():
     text = request.form['text']
     pageid = request.form['board_id']
@@ -193,5 +189,4 @@ def addcomment():
     else:
         comment = Comment(text, board, user)
         db.session.add(comment)
-        db.session.commit()
         return jsonify(success())

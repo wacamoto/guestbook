@@ -1,4 +1,6 @@
 #! .env/bin/python3.5
 
 from guestbook import app
-app.run()
+from config import HOST, PORT
+
+app.run(host=HOST, port=PORT)

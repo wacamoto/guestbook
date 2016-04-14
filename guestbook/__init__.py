@@ -5,4 +5,5 @@ app = Flask(__name__)
 app.config.from_object('config')
 db = SQLAlchemy(app)
 
-from guestbook import route
+from guestbook import route, view
+

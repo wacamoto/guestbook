@@ -1,4 +1,4 @@
-from guestbook import app
+from . import app
 from .view import *
 
 

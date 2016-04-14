@@ -1,8 +1,11 @@
 import re
 import time
 import hashlib
-
 import config
+
+from guestbook import db
+from .models import Token
+from .sendmail import Verificationletter
 
 
 def checkMailValid(email):
@@ -11,8 +14,9 @@ def checkMailValid(email):
 
 
 def checkPasswdValid(passwd):
-    return any(c.isdigit() for c in passwd) and \
-           any(c.isalpha() for c in passwd)
+    return any(_.isdigit() for _ in passwd) and \
+           any(_.isalpha() for _ in passwd) and \
+           len(passwd) > 10
 
 
 def md5hash(password):
